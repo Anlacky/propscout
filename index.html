@@ -466,16 +466,13 @@ function ufACLP(uf) { return Math.round(parseFloat(uf || 0) * S.ufValor); }
 function clpAUF(clp) { return Math.round(parseFloat(clp || 0) / S.ufValor * 10) / 10; }
 
 // Proxy CORS para sortear restricciones del navegador
-const CORS_PROXY = 'https://corsproxy.io/?';
+const WORKER_URL = 'https://propscout.alvarez-kamilo.workers.dev';
 
 async function fetchConProxy(url, opciones = {}) {
-  // Primero intenta directo; si falla CORS, usa proxy
+  // Usa el Cloudflare Worker como proxy para evitar restricciones CORS
   try {
-    const r = await fetch(url, { ...opciones, signal: AbortSignal.timeout(12000) });
-    if (r.ok) return r;
-  } catch (e) { /* silencioso */ }
-  try {
-    const r = await fetch(CORS_PROXY + encodeURIComponent(url), { signal: AbortSignal.timeout(15000) });
+    const proxyUrl = `${WORKER_URL}?url=${encodeURIComponent(url)}`;
+    const r = await fetch(proxyUrl, { signal: AbortSignal.timeout(20000) });
     if (r.ok) return r;
   } catch (e) { /* silencioso */ }
   return null;
